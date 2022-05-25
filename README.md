@@ -8,7 +8,7 @@
 ![Built With Love](https://forthebadge.com/images/badges/built-with-love.svg)
 ![60P](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)
 
-Roger - the personal AI assistant for everyone.
+Roger - the personal assistant for everyone.
 
 ## Introduction
 Text
