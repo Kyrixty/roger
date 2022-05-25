@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./vcoj.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./roger.db"
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db" 
 # # When migrating to Postgres just uncomment this line.
 # and adapt it with your database data and credentials (equivalently for MySQL, MariaDB or any other).

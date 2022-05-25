@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from types.jwt import JWT
+from data.jwt import JWT
 
 class AuthResponse(BaseModel):
     uuid: int

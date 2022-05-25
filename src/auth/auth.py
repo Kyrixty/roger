@@ -1,10 +1,3 @@
-"""
-Auth-related routes, such as /auth/login and /auth/signup are defined and handled here.
-These routes are to be fetched via the frontend to handle retrieving valid JWT tokens, which
-all protected routes (routes that require the user to be authorized) require.
-"""
-
-from os import access
 import crud
 
 from data.user import UserLoginSchema, UserSignupSchema
@@ -13,15 +6,15 @@ from utils.user import (
     EnsureUserIsAdmin,
     EnsureUserDoesNotExist,
 )
-from types.jwt import JWT
+from data.jwt import JWT
 from responses.auth import AuthResponse, RefreshTokenResponse
 from fastapi import HTTPException, Depends, APIRouter
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-from database.sqlite import get_db
+from database.postgresql import get_db
 from exceptions.user import (
     UserValidateError,
-    BadCredentials,
+    BadCredentialsError,
     UserAlreadyExistsError,
 )
 
@@ -35,11 +28,11 @@ def login(
     user: UserLoginSchema, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)
 ):
     """Handles account login"""
-    if not user.validate():
+    if not user.validateUser():
         UserValidateError()
     db_user = crud.get_user_by_username(db=db, username=user.username)
     if not db_user or not crud.match_password(db=db, user=user):
-        BadCredentials()
+        BadCredentialsError()
 
     # Create JWT access + refresh tokens calculated with the user's username.
     access_token = Authorize.create_access_token(subject=user.username, fresh=True)
@@ -63,7 +56,7 @@ def signup(
     db: Session = Depends(get_db),
 ):
     """Handles account signup"""
-    if not user.validate():
+    if not user.validateUser():
         UserValidateError()
     EnsureUserDoesNotExist(db, user.username)
     db_user = crud.create_user(db=db, user=user)
@@ -77,7 +70,7 @@ def signup(
     return auth_response
 
 
-@router.post("/admin/create")
+@router.post("/admin/create", operation_id="auth")
 def createAdminAccount(
     user: UserSignupSchema,
     Authorize: AuthJWT = Depends(),
