@@ -42,7 +42,7 @@ def login(
         refresh_token=refresh_token,
     )
     auth_response = AuthResponse(
-        uuid=db_user.id,  # type: ignore,
+        uuid=db_user.id,  #type: ignore
         username=db_user.username,  # type: ignore
         token=jwt,
     )

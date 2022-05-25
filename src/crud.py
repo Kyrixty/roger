@@ -11,12 +11,13 @@ from data.user import UserLoginSchema, UserSignupSchema
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi.exceptions import HTTPException
-from hashlib import sha256
+from passlib.hash import bcrypt
+#from hashlib import sha256
 
 def pass_hash(password: str, salt: str) -> str:
     '''Hashes a user's password given a salt.'''
     password += salt
-    return sha256(password.encode()).hexdigest()
+    return bcrypt.hash(password)
 
 
 def get_user(db: Session, user_id: int):
@@ -24,7 +25,7 @@ def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
 
-def get_user_by_username(db: Session, username: str):
+def get_user_by_username(db: Session, username: str) -> User:
     '''Gets a user given a user's username. Returns `None` if the user does not exist.'''
     return db.query(User).filter(User.username == username).first()
 
@@ -33,7 +34,7 @@ def match_password(db: Session, user: UserLoginSchema | UserSignupSchema) -> boo
     '''Returns `True` if `user.password` matches the requested user's password. `False` otherwise.'''
     db_user = get_user_by_username(db=db, username=user.username)
     password = pass_hash(user.password, db_user.salt) # type: ignore
-    if not db_user or db_user.password != password:
+    if not db_user or bcrypt.verify(password, db_user.password): # type: ignore
         return False
     return True
 
