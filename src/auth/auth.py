@@ -9,6 +9,7 @@ from utils.user import (
 from data.jwt import JWT
 from responses.auth import AuthResponse, RefreshTokenResponse
 from fastapi import HTTPException, Depends, APIRouter
+from fastapi.security import HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 from database.postgresql import get_db
@@ -19,6 +20,7 @@ from exceptions.user import (
 )
 
 router = APIRouter(prefix="/auth")
+security = HTTPBearer()
 
 # provide a method to create access tokens. The create_access_token()
 # function is used to actually generate the token to use authorization
@@ -42,8 +44,8 @@ def login(
         refresh_token=refresh_token,
     )
     auth_response = AuthResponse(
-        uuid=db_user.id,  #type: ignore
-        username=db_user.username,  # type: ignore
+        uuid=db_user.id,
+        username=db_user.username,
         token=jwt,
     )
     return auth_response
@@ -63,12 +65,11 @@ def signup(
     access_token = Authorize.create_access_token(subject=user.username, fresh=True)
     refresh_token = Authorize.create_refresh_token(subject=user.username)
     auth_response = AuthResponse(
-        uuid=db_user.id,  # type: ignore
-        username=db_user.username,  # type: ignore
+        uuid=db_user.id,
+        username=db_user.username,
         token=JWT(access_token=access_token, refresh_token=refresh_token),
     )
     return auth_response
-
 
 @router.post("/admin/create", operation_id="auth")
 def createAdminAccount(
@@ -91,8 +92,8 @@ def createAdminAccount(
     access_token = Authorize.create_access_token(subject=user.username, fresh=True)
     refresh_token = Authorize.create_refresh_token(subject=user.username)
     auth_response = AuthResponse(
-        uuid=new_admin.id,  # type: ignore
-        username=new_admin.username,  # type: ignore
+        uuid=new_admin.id,
+        username=new_admin.username,
         token=JWT(
             access_token=access_token,
             refresh_token=refresh_token,

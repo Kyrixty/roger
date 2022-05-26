@@ -7,7 +7,9 @@ import binascii
 import os
 
 from models.user import User
+from models.package import Package
 from data.user import UserLoginSchema, UserSignupSchema
+from data.package import PackageSchema
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi.exceptions import HTTPException
@@ -66,4 +68,38 @@ def create_user(db: Session, user: UserSignupSchema, isAdmin: bool = False):
 def delete_user(user: User, db: Session):
     '''Deletes a problem from the database.'''
     db.delete(user)
+    db.commit()
+
+
+def get_pkg(db: Session, pid: int):
+    '''Gets a user given a package's id. Returns `None` if the package does not exist.'''
+    return db.query(Package).filter(Package.id == pid).first()
+
+
+def get_pkg_by_title(db: Session, title: str) -> User:
+    '''Gets a package given a package title. Returns `None` if the package does not exist.'''
+    return db.query(Package).filter(Package.title == title).first()
+
+def get_pkgs(db: Session, skip: int = 0, limit: int = 100):
+    '''Returns users from `skip`->`limit`.'''
+    return db.query(Package).offset(skip).limit(limit).all()
+
+
+def create_pkg(db: Session, author: User, pkg: PackageSchema):
+    '''Creates, adds, commits, and refreshes a package to the app's database. Returns the newly created package.'''
+    package = Package(
+        title=pkg.title, 
+        author_list=[author.id],
+    )
+    try:
+        db.add(package)
+        db.commit()
+        db.refresh(package)
+    except IntegrityError:
+        raise HTTPException(status_code=409, detail=f"Package with title '{pkg.title}' already exists!")
+    return package
+
+def delete_pkg(pkg: Package, db: Session):
+    '''Deletes a problem from the database.'''
+    db.delete(pkg)
     db.commit()

@@ -20,6 +20,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from database.postgresql import Base
 from models.user import User
+from models.package import Package
 
 target_metadata = Base.metadata
 
