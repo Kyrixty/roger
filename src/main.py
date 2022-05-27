@@ -1,6 +1,3 @@
-import crud
-import sys
-
 from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel
@@ -11,7 +8,10 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from database.postgresql import engine
 from auth import auth
 from models.user import Base
-from routes import package
+from routes import (
+    user,
+    package, 
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -76,3 +76,4 @@ def custom_openapi():
 app.openapi = custom_openapi
 app.include_router(auth.router)
 app.include_router(package.router)
+app.include_router(user.router)

@@ -15,3 +15,4 @@ databases[postgresql]
 psycopg2
 bcrypt
 passlib[bcrypt]
+requests
